@@ -1,0 +1,20 @@
+{
+  "name": "1-create-server",
+  "version": "1.0.0",
+  "description": "practice creating express server",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brianjhaller/CS-assessment-practice.git"
+  },
+  "author": "Brian Haller",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/brianjhaller/CS-assessment-practice/issues"
+  },
+  "homepage": "https://github.com/brianjhaller/CS-assessment-practice#readme"
+}
