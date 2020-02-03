@@ -4,7 +4,7 @@
   "description": "practice creating express server",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node server-answer.js",
     "start": "node server.js"
   },
   "repository": {
@@ -16,5 +16,9 @@
   "bugs": {
     "url": "https://github.com/brianjhaller/CS-assessment-practice/issues"
   },
-  "homepage": "https://github.com/brianjhaller/CS-assessment-practice#readme"
+  "homepage": "https://github.com/brianjhaller/CS-assessment-practice#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "path": "^0.12.7"
+  }
 }
