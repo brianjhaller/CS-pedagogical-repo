@@ -39,11 +39,13 @@ We will get more into middleware later, but right now we are going to make what 
 
 Anonymous ones are very similar to regular anonymous JS functions. These use ES6 fat arrow notation and take the request and response objects as parameters: `(req, res) => { YOUR_MIDDLEWARE_FUNCTIONALITY_HERE }`.
 
-We want our middleware functionality for this to be serving our home page. So we can use `res.sendFile` and `path.resolve` to send it.
+We want our middleware functionality for this to be serving our home page. So we can use `res.sendFile` and `path.resolve` to send it. Let's also attach a status of 200, which means the file has been sent successfully.
+
+Note that you can only send one response per request! Using `res.sendStatus` or `res.sendFile` and then adding a `res.send` or `res.json` later in the same middleware chain will ensure your data is not being properly sent from server to client. 
 
 ```
 app.get('/', (req, res) => {
-    return res.sendFile(path.resolve(__dirname, 'index.html'));
+    return res.status(200).sendFile(path.resolve(__dirname, 'index.html'));
 })
 ```
 
@@ -81,6 +83,43 @@ Let's listen on port 3000 (for localhost:3000) and add an anonymous function as 
 app.listen(3000, () => console.log("Server listening on port 3000"));
 ```
 
-If we now run `npm start` in our terminal, we should the server listening log into our terminal, and if we go to http://localhost:3000/, we should see our html loaded and saying `SERVER SERVING`.
+If we now run `npm start` in our terminal, we should the server listening log into our terminal, and if we go to `http://localhost:3000/`, we should see our html loaded and saying `SERVER SERVING`.
 
-However, if we open our inspector and reload the page, we will see that we get some error messages. We need to serve up some static files - our index.js and styles.css
+However, if we open our inspector and reload the page, we will see that we get some error messages. `Failed to load resource` and `Refused to apply styles` We need to serve up some static files - our index.js and styles.css.
+
+### Serving static files with express.static
+
+When our index.html is sent to the browser, the file is read. In addition to the elements created in the body, the head of our doc is also making two more HTTP requests. The `script src` tag and our `link href` in tag will fire off two requests back to the server asking for the `index.js` and `styles.css` files. We're going to use Express' built-in method `express.static` to serve these.
+
+So how does it work? When our server receives a request, it checks each route in sequential order, one at a time. Therefore, it is best practice to have the most general routes at the top and more specific ones at the bottom of the list of routes. We're going to make a general route at the top of our routes that catches all of our requests for any static assets. In this repo, we have a folder called `src` with all of our static assets (css, js, photos). We are going to use `express.static` to offer that `src` folder up to all routes asking for a static file.
+
+The basic syntax is as follows:
+```
+app.use(express.static(path.resolve(__dirname, 'src')));
+```
+
+Let's break it down. `app.use` is a catch-all, with no endpoint specified. It will catch any HTTP method, and because we do not provide an endpoint parameter, it will ring true for every request made to the server. 
+
+`express.static` is a middleware function that will, essentially, do a `res.sendFile` if the folder it is serving contains a file name matching the file requested by our browser. 
+
+`path.resolve(__dirname, 'src')` is telling the middleware what folder to serve. Note that we are not looking at any specific file, we are offering the whole folder up as options for our browser's file request.
+
+If we restart our server and go to `http://localhost:3000/`, we will now see that our background is a lovely lavender and our JS file has printed `JS LOADED` in our brower's console. Always a good tip to have console.logs in your initial JS files and server routes to make sure you are properly serving them and everything is talking to each other!
+
+### Express 404 error handling
+
+Now that we have our homepage loaded, let's go to `http://localhost:3000/test`. Of course, we haven't made a route in our server for that endpoint `/test`, so we get the following in our browser: `Cannot GET: /test`. Let's make a route that will handle all of our routes we don't make specific endpoints for and serve them with a classic `404 error`.
+
+Let's use the `app.all()` catch. What's the difference between `app.use` and `app.all`? `app.all` allows regex in its endpoint, and looks at exact endpoint matches instead of every endpoint with a base of the endpoint specified in `app.use`. For example, a request with the endpoint of `api/demo` will fire `app.use('/api', {})` but not `app.all('/api', {})`.
+
+We're going to take advantage of the regex endpoint capabilities by catching all endpoints in our `app.all` by calling `app.all('*', )`. Let's add it at the bottom of our routes.
+
+Because this is at the bottom of our routes, it will only fire if we haven't hit any other route - in other words, we're navigating to a page that doesn't exist. Let's make an anonymous function to send an HTML element to our browser. We should also set that status to 404, which means 'page not found'.
+
+```
+(req, res) => { 
+    return res.status(404).send('<h1 style="color:red">404: Page not found!</h1>');
+}
+```
+Now if we restart our server and go to `http://localhost:3000/test`, we should see `404: Page not found!` in large red font. Nice!
+
