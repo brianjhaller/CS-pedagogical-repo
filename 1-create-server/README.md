@@ -89,7 +89,7 @@ However, if we open our inspector and reload the page, we will see that we get s
 
 ### Serving static files with express.static
 
-When our index.html is sent to the browser, the file is read. In addition to the elements created in the body, the head of our doc is also making two more HTTP requests. The `script src` tag and our `link href` in tag will fire off two requests back to the server asking for the `index.js` and `styles.css` files. We're going to use Express' built-in method `express.static` to serve these.
+When our index.html is sent to the browser, the file is read. In addition to the elements created in the body, the head of our doc is also making two more HTTP requests. The `script src` tag and our `link href` tag will fire off two requests back to the server asking for the `index.js` and `styles.css` files. We're going to use Express' built-in method `express.static` to serve these.
 
 So how does it work? When our server receives a request, it checks each route in sequential order, one at a time. Therefore, it is best practice to have the most general routes at the top and more specific ones at the bottom of the list of routes. We're going to make a general route at the top of our routes that catches all of our requests for any static assets. In this repo, we have a folder called `src` with all of our static assets (css, js, photos). We are going to use `express.static` to offer that `src` folder up to all routes asking for a static file.
 
